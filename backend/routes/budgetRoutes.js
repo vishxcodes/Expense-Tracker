@@ -79,6 +79,7 @@ router.get("/", protect, async (req, res) => {
       const percentageUsed = (spent / budget.monthlyLimit) * 100;
 
       result.push({
+        _id : budget._id,
         category: budget.category,
         limit: budget.monthlyLimit,
         spent,
