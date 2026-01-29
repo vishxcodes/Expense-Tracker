@@ -10,6 +10,7 @@ const Expenses = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Expense form
   const [form, setForm] = useState({
     amount: "",
     category: "",
@@ -17,11 +18,18 @@ const Expenses = () => {
     paymentMethod: "cash",
   });
 
-  // Fetch expenses
+  // Filters
+  const [filters, setFilters] = useState({
+    month: "",
+    year: "",
+    category: "",
+  });
+
+  // Fetch expenses with filters
   const fetchExpenses = async () => {
     try {
       setLoading(true);
-      const { data } = await getExpenses();
+      const { data } = await getExpenses(filters);
       setExpenses(data);
     } catch (err) {
       setError("Failed to load expenses");
@@ -32,7 +40,7 @@ const Expenses = () => {
 
   useEffect(() => {
     fetchExpenses();
-  }, []);
+  }, [filters]);
 
   // Add expense
   const handleSubmit = async (e) => {
@@ -50,7 +58,6 @@ const Expenses = () => {
         amount: Number(form.amount),
       });
 
-      // Reset form
       setForm({
         amount: "",
         category: "",
@@ -58,7 +65,6 @@ const Expenses = () => {
         paymentMethod: "cash",
       });
 
-      // Refresh list
       fetchExpenses();
     } catch (err) {
       setError("Failed to add expense");
@@ -67,11 +73,7 @@ const Expenses = () => {
 
   // Delete expense
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this expense?"
-    );
-
-    if (!confirmDelete) return;
+    if (!window.confirm("Delete this expense?")) return;
 
     try {
       await deleteExpense(id);
@@ -86,6 +88,54 @@ const Expenses = () => {
   return (
     <div>
       <h1>Expenses</h1>
+
+      {/* FILTERS */}
+      <div
+        style={{
+          display: "flex",
+          gap: "1rem",
+          marginBottom: "1rem",
+        }}
+      >
+        <select
+          value={filters.month}
+          onChange={(e) =>
+            setFilters({ ...filters, month: e.target.value })
+          }
+        >
+          <option value="">Month</option>
+          {[...Array(12)].map((_, i) => (
+            <option key={i + 1} value={i + 1}>
+              {i + 1}
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="number"
+          placeholder="Year"
+          value={filters.year}
+          onChange={(e) =>
+            setFilters({ ...filters, year: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="Category"
+          value={filters.category}
+          onChange={(e) =>
+            setFilters({ ...filters, category: e.target.value })
+          }
+        />
+
+        <button
+          onClick={() =>
+            setFilters({ month: "", year: "", category: "" })
+          }
+        >
+          Clear
+        </button>
+      </div>
 
       {/* ADD EXPENSE FORM */}
       <form
@@ -114,7 +164,7 @@ const Expenses = () => {
         />
 
         <input
-          placeholder="Category (e.g. Food)"
+          placeholder="Category"
           value={form.category}
           onChange={(e) =>
             setForm({ ...form, category: e.target.value })
@@ -122,7 +172,7 @@ const Expenses = () => {
         />
 
         <input
-          placeholder="Description (optional)"
+          placeholder="Description"
           value={form.description}
           onChange={(e) =>
             setForm({ ...form, description: e.target.value })
@@ -146,9 +196,9 @@ const Expenses = () => {
         </button>
       </form>
 
-      {/* EXPENSE LIST */}
+      {/* EXPENSE TABLE */}
       {expenses.length === 0 ? (
-        <p>No expenses added yet.</p>
+        <p>No expenses found.</p>
       ) : (
         <table
           border="1"
@@ -179,8 +229,8 @@ const Expenses = () => {
                 <td>{expense.paymentMethod}</td>
                 <td>
                   <button
-                    onClick={() => handleDelete(expense._id)}
                     style={{ color: "red" }}
+                    onClick={() => handleDelete(expense._id)}
                   >
                     Delete
                   </button>
