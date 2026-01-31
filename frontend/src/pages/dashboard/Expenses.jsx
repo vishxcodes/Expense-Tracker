@@ -80,11 +80,6 @@ const Expenses = () => {
   return (
     
     <div className="space-y-8">
-       {/* TAILWIND TEST — TEMPORARY */}
-      <h1 className="text-6xl font-bold text-green-500">
-  TAILWIND IS FINALLY WORKING
-</h1>
-
       {/* PAGE HEADER */}
       <div>
         <h1 className="text-2xl font-semibold text-gray-900">

@@ -1,21 +1,47 @@
-const getColor = (text) => {
-  if (text.toLowerCase().includes("overspent")) return "#fee2e2";
-  if (text.toLowerCase().includes("increased")) return "#fff7ed";
-  if (text.toLowerCase().includes("good")) return "#ecfdf5";
-  return "#f3f4f6";
+const getStyles = (text) => {
+  const lower = text.toLowerCase();
+
+  if (lower.includes("exceeded") || lower.includes("overspent")) {
+    return {
+      bg: "bg-red-50",
+      border: "border-red-200",
+      text: "text-red-700",
+      label: "Alert",
+    };
+  }
+
+  if (lower.includes("increase") || lower.includes("near")) {
+    return {
+      bg: "bg-yellow-50",
+      border: "border-yellow-200",
+      text: "text-yellow-700",
+      label: "Warning",
+    };
+  }
+
+  return {
+    bg: "bg-green-50",
+    border: "border-green-200",
+    text: "text-green-700",
+    label: "Insight",
+  };
 };
 
 const InsightCard = ({ text }) => {
+  const styles = getStyles(text);
+
   return (
     <div
-      style={{
-        padding: "1rem",
-        borderRadius: "6px",
-        background: getColor(text),
-        border: "1px solid #ddd",
-      }}
+      className={`${styles.bg} ${styles.border} border rounded-xl p-5 space-y-2`}
     >
-      <p>{text}</p>
+      <span
+        className={`text-xs font-medium uppercase ${styles.text}`}
+      >
+        {styles.label}
+      </span>
+      <p className="text-sm text-gray-800 leading-relaxed">
+        {text}
+      </p>
     </div>
   );
 };

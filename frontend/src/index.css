@@ -1,13 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body {
-  @apply bg-gray-50 text-gray-900;
-}
-.btn-primary {
-  @apply bg-primary text-white px-4 py-2 rounded-md hover:opacity-90 transition;
-}
 
-.btn-danger {
-  @apply text-red-500 hover:underline;
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 rounded-md hover:opacity-90 transition;
+  }
+
+  .btn-danger {
+    @apply text-red-500 hover:underline;
+  }
 }

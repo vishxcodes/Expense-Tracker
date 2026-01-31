@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
-  getBudgets,
   createBudget,
+  getBudgets,
   deleteBudget,
 } from "../../api/budget.api";
 
@@ -25,7 +25,7 @@ const Budgets = () => {
       setLoading(true);
       const { data } = await getBudgets(month, year);
       setBudgets(data);
-    } catch {
+    } catch (err) {
       setError("Failed to load budgets");
     } finally {
       setLoading(false);
@@ -55,7 +55,7 @@ const Budgets = () => {
 
       setForm({ category: "", monthlyLimit: "" });
       fetchBudgets();
-    } catch {
+    } catch (err) {
       setError("Failed to save budget");
     }
   };
@@ -66,155 +66,136 @@ const Budgets = () => {
     try {
       await deleteBudget(id);
       fetchBudgets();
-    } catch {
+    } catch (err) {
       setError("Failed to delete budget");
     }
   };
 
-  const getStatusColor = (percentage) => {
-    if (percentage >= 100) return "bg-red-500";
-    if (percentage >= 80) return "bg-yellow-500";
-    return "bg-green-500";
-  };
-
-  const getStatusText = (percentage) => {
-    if (percentage >= 100) return "Budget exceeded";
-    if (percentage >= 80) return "Near budget limit";
-    return "Within budget";
-  };
+  if (loading) return <p>Loading budgets...</p>;
 
   return (
-    <div className="space-y-8">
-      {/* PAGE HEADER */}
-      <div>
-        <h1 className="text-2xl font-semibold">Budgets</h1>
-        <p className="text-sm text-gray-500">
-          Set spending limits and track usage
-        </p>
+    <div>
+      <h1>Budgets</h1>
+
+      {/* Month / Year Selector */}
+      <div style={{ marginBottom: "1rem" }}>
+        <select
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+        >
+          {[...Array(12)].map((_, i) => (
+            <option key={i + 1} value={i + 1}>
+              Month {i + 1}
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="number"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          style={{ marginLeft: "0.5rem" }}
+        />
       </div>
 
-      {/* MONTH / YEAR FILTER */}
-      <div className="bg-white rounded-xl shadow-sm p-4 flex gap-4 items-end">
-        <div>
-          <label className="text-xs text-gray-500">Month</label>
-          <select
-            className="block border rounded-md px-3 py-2"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-          >
-            {[...Array(12)].map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {i + 1}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="text-xs text-gray-500">Year</label>
-          <input
-            type="number"
-            className="block border rounded-md px-3 py-2 w-28"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* ADD BUDGET CARD */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="font-medium mb-4">Set Budget</h3>
+      {/* Add / Update Budget */}
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          border: "1px solid #ddd",
+          padding: "1rem",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <h3>Set Budget</h3>
 
         {error && (
-          <p className="text-sm text-red-500 mb-3">{error}</p>
+          <p style={{ color: "red" }}>{error}</p>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
-        >
-          <input
-            placeholder="Category (e.g. Food)"
-            className="border rounded-md px-3 py-2"
-            value={form.category}
-            onChange={(e) =>
-              setForm({ ...form, category: e.target.value })
-            }
-          />
+        <input
+          placeholder="Category (e.g. Food)"
+          value={form.category}
+          onChange={(e) =>
+            setForm({ ...form, category: e.target.value })
+          }
+        />
 
-          <input
-            type="number"
-            placeholder="Monthly limit"
-            className="border rounded-md px-3 py-2"
-            value={form.monthlyLimit}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                monthlyLimit: e.target.value,
-              })
-            }
-          />
+        <input
+          type="number"
+          placeholder="Monthly Limit"
+          value={form.monthlyLimit}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              monthlyLimit: e.target.value,
+            })
+          }
+        />
 
-          <button className="btn-primary md:col-span-3">
-            Save Budget
-          </button>
-        </form>
-      </div>
+        <button type="submit" style={{ marginLeft: "0.5rem" }}>
+          Save
+        </button>
+      </form>
 
-      {/* BUDGET CARDS */}
-      {loading ? (
-        <p className="text-gray-500 animate-pulse">
-          Loading budgets…
-        </p>
-      ) : budgets.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-500">
-          <p className="font-medium">No budgets set</p>
-          <p className="text-sm">
-            Add a budget to start tracking spending
-          </p>
-        </div>
+      {/* Budget Cards */}
+      {budgets.length === 0 ? (
+        <p>No budgets set for this month.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div style={{ display: "grid", gap: "1rem" }}>
           {budgets.map((b) => (
             <div
-              key={b._id}
-              className="bg-white rounded-xl shadow-sm p-6 space-y-4"
+              key={b.category}
+              style={{
+                border: "1px solid #ddd",
+                padding: "1rem",
+                borderRadius: "6px",
+              }}
             >
-              <div className="flex justify-between items-center">
-                <h3 className="font-medium">{b.category}</h3>
-                <button
-                  onClick={() => handleDelete(b._id)}
-                  className="btn-danger"
-                >
-                  Delete
-                </button>
-              </div>
+              <h3>{b.category}</h3>
 
-              <p className="text-sm text-gray-600">
+              <p>
                 ₹{b.spent} / ₹{b.limit}
               </p>
 
-              {/* Progress Bar */}
-              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+              {/* Progress bar */}
+              <div
+                style={{
+                  height: "10px",
+                  background: "#eee",
+                  borderRadius: "5px",
+                  overflow: "hidden",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 <div
-                  className={`h-full ${getStatusColor(
-                    b.percentageUsed
-                  )}`}
                   style={{
                     width: `${Math.min(
                       b.percentageUsed,
                       100
                     )}%`,
+                    background:
+                      b.alert === "Budget exceeded"
+                        ? "red"
+                        : b.alert === "Near budget limit"
+                        ? "orange"
+                        : "green",
+                    height: "100%",
                   }}
                 />
               </div>
 
-              <p className="text-sm text-gray-500">
+              <p>
                 {b.percentageUsed}% used —{" "}
-                <span className="font-medium">
-                  {getStatusText(b.percentageUsed)}
-                </span>
+                <strong>{b.alert}</strong>
               </p>
+
+              <button
+                onClick={() => handleDelete(b._id)}
+                style={{ color: "red" }}
+              >
+                Delete
+              </button>
             </div>
           ))}
         </div>

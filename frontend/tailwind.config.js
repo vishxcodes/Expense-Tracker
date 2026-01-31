@@ -5,7 +5,11 @@ export default {
     "./src/**/*.{js,jsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: "#6366f1", // Indigo (professional fintech color)
+      },
+    },
   },
   plugins: [],
 };
