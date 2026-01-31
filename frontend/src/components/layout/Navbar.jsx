@@ -2,7 +2,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const { logout, user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -11,19 +11,20 @@ const Navbar = () => {
   };
 
   return (
-    <header
-      style={{
-        height: "60px",
-        background: "#f5f5f5",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "0 1rem",
-        borderBottom: "1px solid #ddd",
-      }}
-    >
-      <span>Welcome, {user?.name}</span>
-      <button onClick={handleLogout}>Logout</button>
+    <header className="h-16 bg-white border-b flex items-center justify-between px-6">
+      <div>
+        <p className="text-sm text-gray-500">Welcome back</p>
+        <p className="font-medium text-gray-900">
+          {user?.name}
+        </p>
+      </div>
+
+      <button
+        onClick={handleLogout}
+        className="text-sm text-red-500 hover:underline"
+      >
+        Logout
+      </button>
     </header>
   );
 };
